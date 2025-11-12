@@ -16,7 +16,11 @@ return new class extends Migration
             $table->foreignId('seller_id')->constrained('users')->onDelete('cascade');
             $table->decimal('amount', 12, 2);
             $table->decimal('platform_fee', 12, 2);
+            $table->enum('payment_method', ['stripe', 'xrpl'])->default('stripe')->comment('決済方法');
             $table->string('stripe_payment_intent_id')->nullable();
+            $table->string('xrpl_escrow_sequence')->nullable()->comment('XRPLエスクローシーケンス番号');
+            $table->string('xrpl_transaction_hash')->nullable()->comment('XRPLトランザクションハッシュ');
+            $table->decimal('xrp_amount', 20, 6)->nullable()->comment('XRP金額');
             $table->enum('status', ['pending', 'paid', 'escrowed', 'released', 'refunded'])->default('pending');
             $table->timestamp('paid_at')->nullable();
             $table->timestamp('released_at')->nullable();

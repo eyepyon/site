@@ -14,6 +14,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'xrpl_address',
     ];
 
     protected $hidden = [

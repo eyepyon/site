@@ -42,5 +42,14 @@
     </form>
 
     <p>アカウントをお持ちでない方は<a href="{{ route('register') }}">会員登録（無料）</a></p>
+    
+    <hr style="margin: 30px 0;">
+    
+    <div style="text-align: center;">
+        <p><strong>Web3ログイン</strong></p>
+        <a href="{{ route('xrpl.login') }}" style="display: inline-block; padding: 10px 20px; background: #23292E; color: white; text-decoration: none; border-radius: 5px;">
+            🌐 XRPLウォレットでログイン
+        </a>
+    </div>
 </body>
 </html>

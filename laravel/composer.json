@@ -1,12 +1,13 @@
 {
     "name": "marketplace/platform",
     "type": "project",
-    "description": "Webサイト・アプリ売買プラットフォーム",
+    "description": "Webサイト・アプリ売買プラットフォーム（XRPL Web3対応）",
     "require": {
         "php": "^8.1",
         "laravel/framework": "^10.0",
         "laravel/cashier": "^15.0",
-        "stripe/stripe-php": "^13.0"
+        "stripe/stripe-php": "^13.0",
+        "hardcastle/xrpl-php": "^1.0"
     },
     "require-dev": {
         "laravel/sail": "^1.21"

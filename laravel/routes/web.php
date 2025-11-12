@@ -18,6 +18,12 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// XRPL Web3認証
+Route::get('/xrpl/login', [App\Http\Controllers\Auth\XRPLAuthController::class, 'showLoginForm'])->name('xrpl.login');
+Route::post('/xrpl/challenge', [App\Http\Controllers\Auth\XRPLAuthController::class, 'generateChallenge'])->name('xrpl.challenge');
+Route::post('/xrpl/verify', [App\Http\Controllers\Auth\XRPLAuthController::class, 'verifyAndLogin'])->name('xrpl.verify');
+Route::post('/xrpl/account-info', [App\Http\Controllers\Auth\XRPLAuthController::class, 'getAccountInfo'])->name('xrpl.account-info');
+
 // 認証が必要なページ
 Route::middleware(['auth'])->group(function () {
     // 出品詳細（認証後のみ閲覧可能）
@@ -35,8 +41,12 @@ Route::middleware(['auth'])->group(function () {
         ->name('listings.checkout');
     Route::post('/listings/{listing}/payment', [PaymentController::class, 'process'])
         ->name('listings.payment');
+    Route::post('/listings/{listing}/payment/xrpl', [PaymentController::class, 'processXRPL'])
+        ->name('listings.payment.xrpl');
     Route::get('/setup-intent', [PaymentController::class, 'setupIntent'])
         ->name('setup-intent');
+    Route::get('/xrpl/price', [PaymentController::class, 'getXRPPrice'])
+        ->name('xrpl.price');
     
     // 取引管理
     Route::get('/transactions', [TransactionController::class, 'index'])

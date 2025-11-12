@@ -13,7 +13,11 @@ class Transaction extends Model
         'seller_id',
         'amount',
         'platform_fee',
+        'payment_method',
         'stripe_payment_intent_id',
+        'xrpl_escrow_sequence',
+        'xrpl_transaction_hash',
+        'xrp_amount',
         'status',
         'paid_at',
         'released_at',
@@ -22,6 +26,7 @@ class Transaction extends Model
     protected $casts = [
         'amount' => 'decimal:2',
         'platform_fee' => 'decimal:2',
+        'xrp_amount' => 'decimal:6',
         'paid_at' => 'datetime',
         'released_at' => 'datetime',
     ];
