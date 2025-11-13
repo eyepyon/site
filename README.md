@@ -12,7 +12,11 @@ Laravel + MySQL + Stripe + XRPL で構築されたWeb3マーケットプレイ�
 ```
 .
 ├── README.md                          # このファイル
-└── laravel/                           # Laravelアプリケーション
+├── laravel/                           # フロントエンド（ユーザー向け）
+└── admin/                             # 管理画面（運営者向け）
+```
+
+### laravel/ - フロントエンド
     ├── app/
     │   ├── Http/Controllers/
     │   │   ├── Auth/
@@ -281,3 +285,198 @@ XRPL_PLATFORM_SECRET=sXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ## 貢献
 
 プルリクエストを歓迎します。大きな変更の場合は、まずissueを開いて変更内容を議論してください。
+
+
+### admin/ - 管理画面
+
+運営者専用の管理画面アプリケーション。フロント側と同じデータベースに接続。
+
+```
+admin/
+├── app/
+│   ├── Http/Controllers/
+│   │   ├── Auth/AdminLoginController.php
+│   │   ├── DashboardController.php
+│   │   ├── AdminUserController.php
+│   │   ├── AdminListingController.php
+│   │   └── AdminTransactionController.php
+│   └── Models/
+│       ├── Admin.php                  # 管理者モデル
+│       ├── User.php                   # フロント側と共有
+│       ├── Listing.php                # フロント側と共有
+│       └── Transaction.php            # フロント側と共有
+├── resources/views/
+│   ├── layouts/app.blade.php
+│   ├── auth/login.blade.php
+│   └── dashboard.blade.php
+├── routes/web.php
+├── .env.example
+└── README.md
+```
+
+## 管理画面のセットアップ
+
+### 1. 管理画面のインストール
+
+```bash
+cd admin
+composer install
+cp .env.example .env
+php artisan key:generate
+```
+
+### 2. データベース設定
+
+フロント側と同じデータベースに接続：
+
+```env
+DB_DATABASE=marketplace  # フロント側と同じ
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+### 3. 管理者テーブルの作成
+
+```bash
+php artisan migrate
+```
+
+### 4. 管理者アカウントの作成
+
+```bash
+php artisan db:seed --class=AdminSeeder
+```
+
+または手動で：
+
+```bash
+php artisan tinker
+```
+
+```php
+App\Models\Admin::create([
+    'name' => '管理者',
+    'email' => 'admin@example.com',
+    'password' => bcrypt('your-secure-password')
+]);
+```
+
+### 5. 管理画面の起動
+
+```bash
+php artisan serve --port=8001
+```
+
+管理画面は http://localhost:8001 でアクセス可能です。
+
+### デフォルトログイン情報
+
+- メールアドレス: admin@example.com
+- パスワード: admin123
+
+**本番環境では必ず変更してください！**
+
+## 管理画面の機能
+
+### 📊 ダッシュボード
+- 統計情報の表示
+- 総ユーザー数、出品数、取引数
+- 総売上、プラットフォーム収益
+- 決済方法別統計
+- 最近の取引一覧
+
+### 👥 ユーザー管理
+- ユーザー一覧・検索
+- ユーザー詳細（出品・購入履歴）
+- ユーザー削除
+
+### 📝 出品管理
+- 出品一覧・検索
+- 出品詳細
+- ステータス変更（draft/active/sold/suspended）
+- 出品削除
+
+### 💰 取引管理
+- 取引一覧・検索
+- 取引詳細
+- ステータス変更
+- XRPL取引情報の表示
+
+## アーキテクチャ
+
+### データベース共有
+
+```
+┌─────────────────┐         ┌─────────────────┐
+│   フロント側     │         │    管理画面      │
+│   (laravel/)    │         │    (admin/)     │
+│   Port: 8000    │         │   Port: 8001    │
+└────────┬────────┘         └────────┬────────┘
+         │                           │
+         └───────────┬───────────────┘
+                     │
+              ┌──────▼──────┐
+              │   MySQL     │
+              │ marketplace │
+              └─────────────┘
+```
+
+### 共有テーブル
+- `users` - ユーザー情報
+- `listings` - 出品情報
+- `listing_price_plans` - 価格プラン
+- `transactions` - 取引情報
+
+### 管理画面専用テーブル
+- `admins` - 管理者アカウント
+
+## 本番環境での運用
+
+### フロント側
+```bash
+cd laravel
+php artisan serve --host=0.0.0.0 --port=8000
+```
+
+### 管理画面
+```bash
+cd admin
+php artisan serve --host=0.0.0.0 --port=8001
+```
+
+### Nginxでの設定例
+
+```nginx
+# フロント側
+server {
+    listen 80;
+    server_name yourdomain.com;
+    root /var/www/laravel/public;
+    # ... 省略 ...
+}
+
+# 管理画面
+server {
+    listen 80;
+    server_name admin.yourdomain.com;
+    root /var/www/admin/public;
+    # ... 省略 ...
+}
+```
+
+### セキュリティ推奨事項
+
+1. **管理画面のアクセス制限**
+   - IPアドレス制限
+   - VPN経由のみアクセス可能に
+   - Basic認証の追加
+
+2. **強力な認証**
+   - 強力なパスワードポリシー
+   - 二要素認証の導入
+   - セッションタイムアウトの設定
+
+3. **監視とログ**
+   - アクセスログの監視
+   - 不正ログイン試行の検知
+   - 重要操作の監査ログ
